@@ -8,8 +8,6 @@ import bodyParser from "body-parser";
 const jsonParser = bodyParser.json()
 
 app.use(express.urlencoded({ extended: true }));
-app.set('views engine', 'ejs');
-app.set('views', './views');
 
 
 app.get('/', CityController.getCityController);
