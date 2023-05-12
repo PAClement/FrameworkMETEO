@@ -1,4 +1,5 @@
 import mariadb from 'mariadb'
+import CityModel from "./CityModel.js";
 
 class authModel {
 
@@ -15,10 +16,11 @@ class authModel {
 
     connectionModel(username, password) {
         return this.bddConnexion().getConnection().then(conn => {
-            return conn.query(`SELECT * FROM user WHERE username = "${username}" && password = "${password}" `)
-                .then((rows) => {
+            return conn.query(`SELECT id, username, ville FROM user WHERE username = "${username}" && password = "${password}" `)
+                .then(async (rows) => {
                     if (rows.length > 0) {
-
+                        let meteo = await CityModel.searchCity(rows[0].ville)
+                        rows.push(meteo);
                         return [{
                             status: 200,
                             data: rows
@@ -39,12 +41,18 @@ class authModel {
         return this.bddConnexion().getConnection().then(conn => {
             return conn.query(`INSERT INTO user (id, username, password, ville) 
                     VALUES (null,"${data.username}","${data.password}","${data.ville}") `)
-                .then((rows) => {
+                .then(async (rows) => {
                     if (rows.affectedRows === 1) {
+
+                        let meteo = await CityModel.searchCity(data.ville)
 
                         return [{
                             status: 200,
-                            data: "Utilisateur ajouté"
+                            data: [{
+                                username: data.username,
+                                ville: data.ville,
+                                meteo: meteo
+                            }]
                         }]
                     } else {
 
